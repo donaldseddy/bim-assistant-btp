@@ -1,0 +1,12 @@
+streamlit
+langchain
+langchain-huggingface
+langchain-community
+chromadb
+sentence-transformers
+pypdf
+python-docx
+ifcopenshell
+pyyaml
+python-dotenv
+pytest
