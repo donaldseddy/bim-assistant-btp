@@ -1,0 +1,32 @@
+# ─────────────────────────────────────────────────────────────────
+# Configuration centralisée du projet BIM Assistant BTP.
+# Modifier ici sans toucher au code source.
+# ─────────────────────────────────────────────────────────────────
+
+llm:
+  repo_id: mistralai/Mistral-7B-Instruct-v0.3
+  max_new_tokens: 1024
+  temperature: 0.2
+  task: text-generation
+
+retriever:
+  chunk_size: 800       # Retenu suite à Expérience 2 (benchmark chunking)
+  chunk_overlap: 100
+  top_k: 5
+  embedding_model: dangvantuan/sentence-camembert-base  # Meilleur score FR (Expérience 3)
+
+chroma:
+  persist_directory: data/chroma_db
+  collection_name: bim_docs
+
+logging:
+  level: INFO
+  log_file: logs/app.log
+
+system_prompt: |
+  Tu es un assistant BIM expert pour une entreprise de construction BTP.
+  Tu réponds UNIQUEMENT en t'appuyant sur les documents fournis en contexte.
+  Si la réponse n'est pas dans les documents, dis-le clairement : "Je ne trouve pas cette information dans les documents disponibles."
+  Tu cites toujours la source (nom du document, page si disponible).
+  Tu réponds en français, de façon concise et structurée.
+  Tu ne réponds pas aux questions hors périmètre BIM/BTP.

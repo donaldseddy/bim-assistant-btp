@@ -1,0 +1,55 @@
+# ─────────────────────────────────────────────────────────────────
+# docker-compose.yml — BIM Assistant BTP
+#
+# Lancement  : docker-compose up --build
+# Arrêt      : docker-compose down
+# Logs       : docker-compose logs -f bim-assistant
+#
+# La base ChromaDB et les documents sont montés en volumes
+# → les données persistent entre les redémarrages du conteneur.
+# ─────────────────────────────────────────────────────────────────
+
+services:
+
+  bim-assistant:
+    build: .
+    container_name: bim-assistant-btp
+    image: bim-assistant-btp:latest
+
+    ports:
+      - "8501:8501"   # Interface Streamlit accessible sur http://localhost:8501
+
+    # ── Variables d'environnement ─────────────────────────────────
+    # Le fichier .env est lu automatiquement par docker-compose
+    env_file:
+      - .env
+
+    # ── Volumes persistants ───────────────────────────────────────
+    volumes:
+      # Documents sources (ajouter des PDFs ici sans rebuild)
+      - ./data/raw:/app/data/raw
+
+      # Base vectorielle ChromaDB (persiste entre les redémarrages)
+      - ./data/chroma_db:/app/data/chroma_db
+
+      # Logs applicatifs
+      - ./logs:/app/logs
+
+    # ── Politique de redémarrage ──────────────────────────────────
+    restart: unless-stopped
+
+    # ── Ressources (adapter selon le serveur) ────────────────────
+    deploy:
+      resources:
+        limits:
+          memory: 4G     # sentence-transformers nécessite ~1-2 Go RAM
+        reservations:
+          memory: 1G
+
+    # ── Healthcheck ───────────────────────────────────────────────
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8501/_stcore/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
